@@ -1,0 +1,10 @@
+Quick Pay Project – Microservices-Based Payment System Project Overview Quick Pay Project is a backend application built using Spring Boot and follows a microservices architecture to facilitate wallet-to-wallet payments and seamless fund additions via Razorpay payment gateway. The system is designed with security in mind, utilizing Spring Security for API protection, and ensures efficient communication between services through asynchronous messaging with Apache Kafka.
+
+Microservices Overview The application consists of four independent microservices, each handling a specific functionality:
+
+User Service – Manages user registration, authentication, and validation. Notification Service – Handles event-based notifications and updates logs. Wallet Service – Processes wallet transactions, updates balances, and manages fund additions. Transaction Service – Orchestrates transactions between wallets and ensures fund flow. Architecture & Workflow
+
+User Registration The Web Application sends a POST /user request to the User Service, which stores user details in the User Database. Upon successful registration, a user_created event is published via Kafka to the Notification Service, triggering an update in the Notification Database.
+Adding Funds to Wallet The Web Application sends a POST /addMoney request to the Wallet Service. The Wallet Service internally calls POST /validate on the User Service to verify the user. After successful validation, the wallet balance is updated in the Wallet Database, and a wallet_updated event is sent to the Notification Service for logging.
+Wallet-to-Wallet Transactions A POST /transaction request is made to the Transaction Service to initiate a payment. The Transaction Service updates the Transaction Database and emits a txn_init event to the Wallet Service to process the wallet balances. Once processed, a txn_completed event is published, updating both the Transaction Service and Notification Service.
+Checking Transaction Status Users can check their transaction status by making a GET /status request to the Transaction Service, which retrieves details from the Transaction Database.
